@@ -1,6 +1,7 @@
 # Mood and Attention Monitoring in Online Classrooms
 
-## Project Structure:
+## 📂 Project Structure:
+```
 Mood-and-Attention-Monitoring-in-Online-Classrooms/
 │
 ├── main.py              # Main logic
@@ -10,3 +11,4 @@ Mood-and-Attention-Monitoring-in-Online-Classrooms/
 ├── requirements.txt
 ├── README.md
 └── .gitignore
+```
