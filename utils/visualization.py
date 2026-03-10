@@ -1,9 +1,6 @@
 import cv2
 import numpy as np
 
-LEFT_EYE = [33, 160, 158, 133, 153, 144]
-RIGHT_EYE = [362, 385, 387, 263, 373, 380]
-
 def draw_landmarks(frame: np.ndarray, landmarks: list) -> None:
     """
     Draw facial landmarks on the frame.
@@ -19,9 +16,117 @@ def draw_landmarks(frame: np.ndarray, landmarks: list) -> None:
     for lm in landmarks:
         cv2.circle(frame, tuple(lm), 1, (0,255,0), -1)
 
-def draw_eye_mesh(frame, points):
-    for idx in LEFT_EYE:
-        cv2.circle(frame, tuple(points[idx]), 2, (255,0,0), -1)
+def draw_metrics(frame, ear=None, blink_rate=None, yaw=None, pitch=None, attention=None, emotion=None, confidence=None):
+    """
+    Draw monitoring metrics on the frame.
 
-    for idx in RIGHT_EYE:
-        cv2.circle(frame, tuple(points[idx]), 2, (255,0,0), -1)
+    Parameters
+    ----------
+    frame : np.ndarray
+        Input video frame.
+
+    ear : float, optional
+        Eye Aspect Ratio value.
+
+    blink_rate : float, optional
+        Blink rate (blinks per minute).
+
+    yaw : float, optional
+        Head yaw angle.
+
+    pitch : float, optional
+        Head pitch angle.
+
+    attention : str, optional
+        Attention state (Focused / Distracted / Drowsy).
+
+    emotion : str, optional
+        Predicted emotion label.
+
+    confidence : float, optional
+        Emotion prediction confidence.
+    """
+
+    y_offset = 30
+    line_gap = 30
+
+    font = cv2.FONT_HERSHEY_SIMPLEX
+    scale = 0.6
+    color = (0, 255, 0)
+    thickness = 2
+
+    if ear is not None:
+        cv2.putText(
+            frame,
+            f"EAR: {ear:.2f}",
+            (20, y_offset),
+            font,
+            scale,
+            color,
+            thickness,
+        )
+        y_offset += line_gap
+
+    if blink_rate is not None:
+        cv2.putText(
+            frame,
+            f"Blink Rate: {blink_rate:.1f}",
+            (20, y_offset),
+            font,
+            scale,
+            color,
+            thickness,
+        )
+        y_offset += line_gap
+
+    if yaw is not None:
+        cv2.putText(
+            frame,
+            f"Yaw: {yaw:.2f}",
+            (20, y_offset),
+            font,
+            scale,
+            color,
+            thickness,
+        )
+        y_offset += line_gap
+
+    if pitch is not None:
+        cv2.putText(
+            frame,
+            f"Pitch: {pitch:.2f}",
+            (20, y_offset),
+            font,
+            scale,
+            color,
+            thickness,
+        )
+        y_offset += line_gap
+
+    if attention is not None:
+        cv2.putText(
+            frame,
+            f"Attention: {attention}",
+            (20, y_offset),
+            font,
+            0.7,
+            (0, 0, 255),
+            thickness,
+        )
+        y_offset += line_gap + 10
+
+    if emotion is not None:
+        if confidence is not None:
+            text = f"Emotion: {emotion} ({confidence:.2f})"
+        else:
+            text = f"Emotion: {emotion}"
+
+        cv2.putText(
+            frame,
+            text,
+            (20, y_offset),
+            font,
+            0.7,
+            (255, 0, 0),
+            thickness,
+        )
