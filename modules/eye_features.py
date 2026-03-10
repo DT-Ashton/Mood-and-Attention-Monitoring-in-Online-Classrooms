@@ -1,7 +1,7 @@
 import numpy as np
 import time
 
-def compute_ear(eye_indices: list) -> float:
+def compute_ear(eye_points: list) -> float:
     """
     Compute Eye Aspect Ratio (EAR).
 
@@ -10,24 +10,32 @@ def compute_ear(eye_indices: list) -> float:
 
     Parameters
     ----------
-    eye_indices : list
-        List of eye landmark indices.
+    eye_points : list
+        List of 6 eye landmark coordinates.
 
     Returns
     -------
     float
         Eye Aspect Ratio value.
     """
+    p1, p2, p3, p4, p5, p6 = eye_points
 
-    vertical1 = np.linalg.norm(eye_indices[1] - eye_indices[5])
-    vertical2 = np.linalg.norm(eye_indices[2] - eye_indices[4])
-    horizontal = np.linalg.norm(eye_indices[0] - eye_indices[3])
+    p1 = np.array(p1)
+    p2 = np.array(p2)
+    p3 = np.array(p3)
+    p4 = np.array(p4)
+    p5 = np.array(p5)
+    p6 = np.array(p6)
+
+    vertical1 = np.linalg.norm(p2 - p6)
+    vertical2 = np.linalg.norm(p3 - p5)
+    horizontal = np.linalg.norm(p1 - p4)
 
     ear = (vertical1 + vertical2) / (2.0 * horizontal)
 
     return ear
 
-def average_ear(landmarks: list) -> float:
+def compute_avg_ear(landmarks: list) -> float:
     """
     Compute average EAR for both eyes.
 
@@ -43,14 +51,14 @@ def average_ear(landmarks: list) -> float:
     """
 
     # MediaPipe eye landmark indices (FaceMesh)
-    LEFT_EYE = [33, 160, 158, 133, 153, 144]
-    RIGHT_EYE = [362, 385, 387, 263, 373, 380]
+    left_eye_indices = [33, 160, 158, 133, 153, 144]
+    right_eye_indices = [362, 385, 387, 263, 373, 380]
 
-    left_eye = landmarks[LEFT_EYE]
-    right_eye = landmarks[RIGHT_EYE]
+    left_eye = [landmarks[i] for i in left_eye_indices]
+    right_eye = [landmarks[i] for i in right_eye_indices]
 
-    left_ear = compute_ear(landmarks, left_eye)
-    right_ear = compute_ear(landmarks, right_eye)
+    left_ear = compute_ear(left_eye)
+    right_ear = compute_ear(right_eye)
 
     return (left_ear + right_ear) / 2.0
 
