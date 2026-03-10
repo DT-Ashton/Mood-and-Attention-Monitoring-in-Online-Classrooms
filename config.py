@@ -1,4 +1,4 @@
-from time import time
+import time
 
 LANDMARKER_MODEL_PATH = "models/face_landmarker.task"
 EMOTION_MODEL_PATH = "models/EfficentNetV2_emotion_model.pth"
