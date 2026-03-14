@@ -7,11 +7,55 @@ OFFICAL DATASET : https://www.kaggle.com/datasets/lorddemon/face-emotion-balance
 ```
 Mood-and-Attention-Monitoring-in-Online-Classrooms/
 │
-├── main.py              # Main logic
+├── app.py                      # Demo web
+├── config.py                   # System prarameter
+├── main.py                     # Main system pipeline
+├── models/                     # Fine-tuned CNN models and Mediapipe Face Mesh
 │
-├── models/             # Training scripts
+├── modules/
+│   ├── attention_model.py
+│   ├── emotion_model.py
+│   ├── eye_features.py
+│   ├── face_landmarker.py
+│   └── head_pose.py
+│
+├── training/                   # Training scripts
+│
+├── uilts/
+│   ├── temporal_smoothing.py
+│   └── visualization.py
 │   
 ├── requirements.txt
 ├── README.md
 └── .gitignore
 ```
+
+## ▶️ Running the Project
+
+1. Clone the repository
+
+```bash
+git clone https://github.com/DT-Ashton/Mood-and-Attention-Monitoring-in-Online-Classrooms.git
+cd https://github.com/DT-Ashton/Mood-and-Attention-Monitoring-in-Online-Classrooms.git
+```
+2. Create and activate a virtual environment
+
+&emsp;&emsp;```python -m venv venv```
+
+&emsp;&emsp;Windows:  
+&emsp;&emsp;&emsp; ```.venv\Scripts\Activate.ps1``` (powershell)  
+&emsp;&emsp;&emsp; ```.venv\Scripts\activate``` (command prompt)  
+
+&emsp;&emsp;macOS/Linux:  ```source .venv/bin/activate```  
+
+3. Install dependencies:
+
+&emsp;&emsp; ```pip install -r requirements.txt```
+
+4. Run project:
+
+- Change project settings in `config.py`
+- Run `main.py`
+
+5. Run demo web:
+--- Coming soon ---

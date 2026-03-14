@@ -1,7 +1,8 @@
 import time
 
 LANDMARKER_MODEL_PATH = "models/face_landmarker.task"
-EMOTION_MODEL_PATH = "models/EfficentNetV2_emotion_model.pth"
+EMOTION_MODEL_PATH = "models/new_train/ResNet18.pt"
+EMOTION_MODEL = "resnet18"  # Options: "resnet18", "mobilenetv2", "efficientnetv2_s"
 
 # EAR threshold for eye closure detection
 EAR_THRESHOLD = 0.21

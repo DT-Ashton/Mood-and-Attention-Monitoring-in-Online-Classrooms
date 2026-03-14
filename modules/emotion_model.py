@@ -2,6 +2,7 @@ import torch
 import torchvision.models as models
 import cv2
 import numpy as np
+from config import EMOTION_MODEL
 
 class EmotionRecognizer:
     """
@@ -9,20 +10,33 @@ class EmotionRecognizer:
 
     Parameters
     ----------
+    model : str
+        Type of model architecture ("resnet18", "mobilenetv2", "efficientnetv2_s").
+
     model_path : str
         Path to the trained .pth model file.
 
     device : str
         Device used for inference ("cpu" or "cuda").
     """
-    def __init__(self, model_path: str, device="cpu"):
+    def __init__(self, model: str, model_path: str, device="cpu"):
         self.device = device
         self.labels = ['anger', 'fear', 'happy', 'neutral', 'sad']
         self.input_size = 224
-        self.model = models.efficientnet_v2_s(weights=None)
 
-        in_features = self.model.classifier[1].in_features
-        self.model.classifier[1] = torch.nn.Linear(in_features, len(self.labels))
+        if model == "resnet18":
+            self.model = models.resnet18(weights=None)
+            in_features = self.model.fc.in_features
+            self.model.fc = torch.nn.Linear(in_features, len(self.labels))
+        elif model == "mobilenetv2":
+            self.model = models.mobilenet_v2(weights=None)
+            in_features = self.model.classifier[1].in_features
+            self.model.classifier[1] = torch.nn.Linear(in_features, len(self.labels))
+        else:
+            self.model = models.efficientnet_v2_s(weights=None)
+            in_features = self.model.classifier[1].in_features
+            self.model.classifier[1] = torch.nn.Linear(in_features, len(self.labels))
+
         self.model.load_state_dict(torch.load(model_path, map_location=device, weights_only=True))
         self.model.to(device)
         self.model.eval()

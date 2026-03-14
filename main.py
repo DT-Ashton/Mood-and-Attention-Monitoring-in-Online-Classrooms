@@ -14,11 +14,11 @@ from config import *
 # MAIN PIPELINE
 def run_pipeline():
     landmarker = FaceLandmarkerWrapper(LANDMARKER_MODEL_PATH)
-    emotion_model = EmotionRecognizer(EMOTION_MODEL_PATH, device="cuda")
+    emotion_model = EmotionRecognizer(EMOTION_MODEL, EMOTION_MODEL_PATH)
     blink_rate_calc = BlinkRateCalculator(EAR_THRESHOLD, BLINK_CONSEC_FRAMES)
     attention_model = AttentionModel()
 
-    cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture(0)  # Use webcam
 
     yaw_smoother = EMAFilter()
     pitch_smoother = EMAFilter()
