@@ -6,7 +6,7 @@ from modules.face_landmarker import FaceLandmarkerWrapper
 from modules.head_pose import get_head_pose
 from modules.eye_features import BlinkRateCalculator, compute_avg_ear
 from modules.emotion_model import EmotionRecognizer
-from modules.decision_model import attention_decision
+from modules.attention_model import AttentionModel
 from utils.temporal_smoothing import EMAFilter
 from utils.visualization import draw_landmarks, draw_metrics
 from config import *
@@ -16,12 +16,14 @@ def run_pipeline():
     landmarker = FaceLandmarkerWrapper(LANDMARKER_MODEL_PATH)
     emotion_model = EmotionRecognizer(EMOTION_MODEL_PATH, device="cuda")
     blink_rate_calc = BlinkRateCalculator(EAR_THRESHOLD, BLINK_CONSEC_FRAMES)
+    attention_model = AttentionModel()
 
     cap = cv2.VideoCapture(0)
 
     yaw_smoother = EMAFilter()
     pitch_smoother = EMAFilter()
     ear_smoother = EMAFilter()
+    emotion_filter = EMAFilter()
 
     frame_id = 0
     emotion = "Unknown"
@@ -68,22 +70,22 @@ def run_pipeline():
                 cropped_face = emotion_model.crop_face(frame, coords)
                 if cropped_face is not None and cropped_face.size > 0:
                     emotion, conf = emotion_model.predict(cropped_face)
+                    conf = emotion_filter.update(conf)
 
             # Attention decision
-            attention_state = attention_decision(yaw, pitch, ear, blink_rate)
+            state = attention_model.update(ear=ear, blink_rate=blink_rate, yaw=yaw, pitch=pitch, emotion=emotion)
 
             if SHOW_DETAILS_METRICS:
-                draw_metrics(frame, ear=ear, blink_rate=blink_rate, yaw=yaw, pitch=pitch, 
-                         attention=attention_state, emotion=emotion, confidence=conf)
+                draw_metrics(frame, state, ear=ear, blink_rate=blink_rate, yaw=yaw, pitch=pitch, emotion=emotion, confidence=conf)
             else:
-                draw_metrics(frame, attention=attention_state, emotion=emotion, confidence=conf)
+                draw_metrics(frame, state)
 
             if SHOW_LANDMARKS:
                 draw_landmarks(frame, coords)
                 
             if LOGGING_ENABLED:
                 with open(LOG_PATH + LOG_FILE, "a") as f:
-                    f.write(f"{timestamp},{yaw:.2f},{pitch:.2f},{ear:.2f},{blink_rate:.1f},{attention_state}\n")
+                    f.write(f"{timestamp},{state},{yaw:.2f},{pitch:.2f},{ear:.2f},{blink_rate:.1f},{emotion},{conf:.2f}\n")
 
         cv2.imshow("Student Monitoring", frame)
 
