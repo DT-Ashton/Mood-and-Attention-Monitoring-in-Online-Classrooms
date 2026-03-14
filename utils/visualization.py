@@ -1,21 +1,31 @@
 import cv2
 import numpy as np
 
-def draw_landmarks(frame: np.ndarray, landmarks: list) -> None:
+def draw_landmarks(frame: np.ndarray, landmarks: list|np.ndarray, color=(0,255,0)):
     """
-    Draw facial landmarks on the frame.
+    Fast drawing of facial landmarks using NumPy vectorization.
 
     Parameters
     ----------
-    frame : ndarray
+    frame : np.ndarray
         Video frame.
-    landmarks : list
-        List of facial landmarks.
-    """
-    for lm in landmarks:
-        cv2.circle(frame, tuple(map(int, lm)), 1, (0,255,0), -1)
 
-def draw_metrics(frame, ear=None, blink_rate=None, yaw=None, pitch=None, attention=None, emotion=None, confidence=None):
+    landmarks : list or np.ndarray
+        List of (x,y) landmark coordinates.
+
+    color : tuple
+        Landmark color (B,G,R).
+    """
+    pts = np.array(landmarks, dtype=np.int32)
+
+    h, w, _ = frame.shape
+
+    x = np.clip(pts[:,0], 0, w-1)
+    y = np.clip(pts[:,1], 0, h-1)
+
+    frame[y, x] = color
+
+def draw_metrics(frame: np.ndarray, state: str, ear: float|None=None, blink_rate: float|None=None, yaw: float|None=None, pitch: float|None=None, emotion: str|None=None, confidence: float|None=None):
     """
     Draw monitoring metrics on the frame.
 
@@ -23,6 +33,9 @@ def draw_metrics(frame, ear=None, blink_rate=None, yaw=None, pitch=None, attenti
     ----------
     frame : np.ndarray
         Input video frame.
+
+    state : str, optional
+        Attention state ("Focused", "Distracted", "Drowsy", "Confused", "Disengaged").
 
     ear : float, optional
         Eye Aspect Ratio value.
@@ -36,23 +49,21 @@ def draw_metrics(frame, ear=None, blink_rate=None, yaw=None, pitch=None, attenti
     pitch : float, optional
         Head pitch angle.
 
-    attention : str, optional
-        Attention state (Focused / Distracted / Drowsy).
-
     emotion : str, optional
         Predicted emotion label.
 
     confidence : float, optional
         Emotion prediction confidence.
     """
-
     y_offset = 30
     line_gap = 30
-
     font = cv2.FONT_HERSHEY_SIMPLEX
     scale = 0.6
     color = (255, 0, 0)
     thickness = 2
+
+    cv2.putText(frame, f"Attention: {state}", (20, y_offset), font, scale, color, thickness)
+    y_offset += line_gap
 
     if ear is not None:
         cv2.putText(frame, f"EAR: {ear:.2f}", (20, y_offset), font, scale, color, thickness)
@@ -68,10 +79,6 @@ def draw_metrics(frame, ear=None, blink_rate=None, yaw=None, pitch=None, attenti
 
     if pitch is not None:
         cv2.putText(frame, f"Pitch: {pitch:.2f}", (20, y_offset), font, scale, color, thickness)
-        y_offset += line_gap
-
-    if attention is not None:
-        cv2.putText(frame, f"Attention: {attention}", (20, y_offset), font, scale, color, thickness)
         y_offset += line_gap
 
     if emotion is not None:
