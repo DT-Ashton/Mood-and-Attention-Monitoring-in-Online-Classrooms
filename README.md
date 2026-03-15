@@ -1,5 +1,6 @@
 # Mood and Attention Monitoring in Online Classrooms
 
+## Dataset
 OFFICAL DATASET : https://www.kaggle.com/datasets/lorddemon/face-emotion-balance-dataset-american-asian
 => Unlimited accesses can be used for any purpose.
 
@@ -7,9 +8,12 @@ OFFICAL DATASET : https://www.kaggle.com/datasets/lorddemon/face-emotion-balance
 ```
 Mood-and-Attention-Monitoring-in-Online-Classrooms/
 │
-├── app.py                      # Demo web
-├── config.py                   # System prarameter
-├── main.py                     # Main system pipeline
+├── app.py                      # Web demo
+├── main.py                     # CLI demo
+├── pipeline.py                 # System pipeline
+│
+├── config/                     # System config
+│
 ├── models/                     # Fine-tuned CNN models and Mediapipe Face Mesh
 │
 ├── modules/
@@ -19,9 +23,14 @@ Mood-and-Attention-Monitoring-in-Online-Classrooms/
 │   ├── face_landmarker.py
 │   └── head_pose.py
 │
-├── training/                   # Training scripts
+├── notebooks/
+│   ├── training/               # Training scripts
+│   └── benchmark.ipynb         # Fine-tuned models benchmark
 │
-├── uilts/
+├── templates/
+│   └── index.html              # Demo web interface
+│
+├── utils/
 │   ├── temporal_smoothing.py
 │   └── visualization.py
 │   
@@ -31,7 +40,6 @@ Mood-and-Attention-Monitoring-in-Online-Classrooms/
 ```
 
 ## ▶️ Running the Project
-
 1. Clone the repository
 
 ```bash
@@ -53,9 +61,7 @@ cd https://github.com/DT-Ashton/Mood-and-Attention-Monitoring-in-Online-Classroo
 &emsp;&emsp; ```pip install -r requirements.txt```
 
 4. Run project:
+&emsp;&emsp;Run CLI demo: ```python main.py```
+&emsp;&emsp;Run web demo: ```python app.py```
 
-- Change project settings in `config.py`
-- Run `main.py`
-
-5. Run demo web:
---- Coming soon ---
+**Note:** Change project settings in `config/config.yaml`
