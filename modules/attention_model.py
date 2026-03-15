@@ -18,13 +18,18 @@ class AttentionModel:
 
     pitch_thresh : float
         Pitch threshold.
+
+    blink_rate_drowsy : float
+        Blink rate threshold for drowsiness detection (blinks per minute).
     """
 
-    def __init__(self, window_size=30, ear_thresh=0.23, yaw_thresh=20, pitch_thresh=20):
+    def __init__(self, window_size=30, ear_threshold=0.23, yaw_threshold=15, pitch_threshold=15, blink_rate_drowsy=20):
         self.window_size = window_size
-        self.ear_thresh = ear_thresh
-        self.yaw_thresh = yaw_thresh
-        self.pitch_thresh = pitch_thresh
+        self.ear_threshold = ear_threshold
+        self.yaw_threshold = yaw_threshold
+        self.pitch_threshold = pitch_threshold
+        self.blink_rate_drowsy = blink_rate_drowsy
+
 
         # Temporal buffers
         self.ear_buffer = deque(maxlen=window_size)
@@ -92,22 +97,22 @@ class AttentionModel:
 
         dominant_emotion = max(emotion_counts, key=emotion_counts.get)
 
-        if ear_mean < self.ear_thresh and blink_mean < 8:
+        if ear_mean < self.ear_threshold and blink_mean < self.blink_rate_drowsy:
             return "Drowsy"
         
-        if ear_mean < self.ear_thresh and pitch_mean > self.pitch_thresh:
+        if ear_mean < self.ear_threshold and pitch_mean > self.pitch_threshold:
             return "Drowsy"
 
-        if abs(yaw_mean) > self.yaw_thresh:
+        if abs(yaw_mean) > self.yaw_threshold:
             return "Distracted"
         
-        if abs(pitch_mean) > self.pitch_thresh:
+        if abs(pitch_mean) > self.pitch_threshold:
             return "Distracted"
 
-        if (dominant_emotion == "fear" and abs(yaw_mean) < self.yaw_thresh and ear_mean > self.ear_thresh):
+        if (dominant_emotion == "fear" and abs(yaw_mean) < self.yaw_threshold and ear_mean > self.ear_threshold):
             return "Confused"
 
-        if (dominant_emotion == "sad" and abs(yaw_mean) < self.yaw_thresh and ear_mean > self.ear_thresh):
+        if (dominant_emotion == "sad" and abs(yaw_mean) < self.yaw_threshold and ear_mean > self.ear_threshold):
             return "Disengaged"
 
         if dominant_emotion in ["happy", "neutral"]:

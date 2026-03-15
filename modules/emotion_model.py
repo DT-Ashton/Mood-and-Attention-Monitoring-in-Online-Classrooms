@@ -2,34 +2,29 @@ import torch
 import torchvision.models as models
 import cv2
 import numpy as np
-from config import EMOTION_MODEL
 
 class EmotionRecognizer:
     """
     Wrapper class for emotion recognition using a fine-tuned EfficientNetV2 model.
 
     Parameters
-    ----------
-    model : str
-        Type of model architecture ("resnet18", "mobilenetv2", "efficientnetv2_s").
-
     model_path : str
-        Path to the trained .pth model file.
+        Path to the trained .pt model file ("resnet18", "mobilenet_v3_large", "efficientnet_v2_s").
 
     device : str
         Device used for inference ("cpu" or "cuda").
     """
-    def __init__(self, model: str, model_path: str, device="cpu"):
+    def __init__(self, architecture: str, model_path: str, device="cpu"):
         self.device = device
         self.labels = ['anger', 'fear', 'happy', 'neutral', 'sad']
         self.input_size = 224
 
-        if model == "resnet18":
+        if architecture == "resnet18":
             self.model = models.resnet18(weights=None)
             in_features = self.model.fc.in_features
             self.model.fc = torch.nn.Linear(in_features, len(self.labels))
-        elif model == "mobilenetv2":
-            self.model = models.mobilenet_v2(weights=None)
+        elif architecture == "mobilenet_v3_large":
+            self.model = models.mobilenet_v3_large(weights=None)
             in_features = self.model.classifier[1].in_features
             self.model.classifier[1] = torch.nn.Linear(in_features, len(self.labels))
         else:

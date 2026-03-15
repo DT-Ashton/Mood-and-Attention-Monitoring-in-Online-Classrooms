@@ -1,0 +1,33 @@
+models:
+  landmarker: "models/face_landmarker.task"
+  
+  emotion:
+    architecture: "resnet18"    # Options: "efficientnet_v2_s", "resnet18", "mobilenet_v3_large"
+    path: "models/ResNet18.pt"  # Options: "models/EfficientNet_v2_s.pt", "models/ResNet18.pt", "models/MobileNet_v3_Large.pt"
+  
+  device: "cuda"  # Options: "cuda", "cpu"
+
+attention:
+  window_size: 30
+  ear_threshold: 0.23
+  blink_consec_frames: 3
+  yaw_threshold: 15
+  pitch_threshold: 15
+  blink_rate_drowsy: 20
+
+smoothing:
+  ema_alpha_pose: 0.05
+  ema_alpha_ear: 0.3
+  ema_alpha_emotion: 0.3
+
+pipeline:
+  emotion_inference_interval: 10
+  webcam_id: 0
+
+visualization:
+  show_landmarks: true
+  show_metrics: true
+
+logging:
+  enabled: false
+  path: "logs/"
