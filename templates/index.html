@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Online Classroom Monitoring</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body{
+        font-family: Arial;
+        background:#f3f3f3;
+        text-align:center;
+        }
+
+        .container{
+        display:flex;
+        justify-content:center;
+        margin-top:20px;
+        }
+
+        .video{
+        margin-right:40px;
+        }
+
+        .panel{
+        background:white;
+        padding:40px;
+        border-radius:10px;
+        width:250px;
+        text-align: left;
+        }
+
+        .panel h3{
+        text-align: center;
+        }
+
+        .metric-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .metric-header h3 {
+            margin: 10px 0;
+        }
+
+        .metric-header span {
+            font-weight: bold;
+        }
+
+        .focused{color:green;font-weight:bold;}
+        .disengaged{color:blue;font-weight:bold;}
+        .distracted{color:orange;font-weight:bold;}
+        .drowsy{color:red;font-weight:bold;}
+    </style>
+</head>
+
+<body>
+<h2>Online Classroom Mood & Attention Monitoring</h2>
+<div class="container">
+    <div class="video">
+        <img id="video" src="/video_feed" width="640">
+    </div>
+    <div class="panel">
+        <div class="metric-header">
+            <h3>Attention</h3>
+            <span id="attention">Focused</span>
+        </div>
+
+        <div class="metric-header">
+            <h3>Emotion</h3>
+            <span id="emotion">Neutral</span>
+        </div>
+
+        <h3>Session statistics</h3>
+        <p>Focused: <span id="focused"></span>%</p>
+        <p>Disengaged: <span id="disengaged"></span>%</p>
+        <p>Distracted: <span id="distracted"></span>%</p>
+        <p>Drowsy: <span id="drowsy"></span>%</p>
+
+        <hr>
+        <h3>Visualization</h3>
+        <label>
+            <input type="checkbox" id="landmarks" checked>
+            Show landmarks
+        </label>
+
+        <br>
+        <label>
+            <input type="checkbox" id="metrics" checked>
+            Show metrics
+        </label>
+    </div>
+</div>
+
+<script>
+async function updateMetrics(){
+    const res = await fetch("/metrics")
+    const data = await res.json()
+
+    document.getElementById("emotion").innerText = data.emotion
+
+    let attention = document.getElementById("attention")
+
+    attention.innerText = data.state
+    attention.className = data.state.toLowerCase()
+
+    document.getElementById("focused").innerText = data.stats.focused
+    document.getElementById("disengaged").innerText = data.stats.disengaged
+    document.getElementById("distracted").innerText = data.stats.distracted
+    document.getElementById("drowsy").innerText = data.stats.drowsy
+}
+setInterval(updateMetrics,1000)
+
+setInterval(()=>{
+    let img = document.getElementById("video")
+    if(!img.complete || img.naturalWidth === 0){
+        img.src="/video_feed?"+new Date().getTime()
+    }
+},3000)
+
+// Toggle options
+document.getElementById("landmarks").addEventListener("change", e=>{
+    fetch("/toggle",{
+        method:"POST",
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({
+            option:"landmarks",
+            value:e.target.checked
+        })
+    })
+})
+
+document.getElementById("metrics").addEventListener("change", e=>{
+    fetch("/toggle",{
+        method:"POST",
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({
+            option:"metrics",
+            value:e.target.checked
+        })
+    })
+})
+</script>
+
+</body>
+</html>

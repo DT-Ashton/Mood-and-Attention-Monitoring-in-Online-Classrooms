@@ -97,10 +97,10 @@ class AttentionModel:
 
         dominant_emotion = max(emotion_counts, key=emotion_counts.get)
 
-        if ear_mean < self.ear_threshold and blink_mean < self.blink_rate_drowsy:
+        if dominant_emotion in ["sad", "neutral"] and ear_mean < self.ear_threshold and blink_mean < self.blink_rate_drowsy:
             return "Drowsy"
         
-        if ear_mean < self.ear_threshold and pitch_mean > self.pitch_threshold:
+        if dominant_emotion in ["sad", "neutral"] and ear_mean < self.ear_threshold and pitch_mean > self.pitch_threshold:
             return "Drowsy"
 
         if abs(yaw_mean) > self.yaw_threshold:
@@ -109,10 +109,7 @@ class AttentionModel:
         if abs(pitch_mean) > self.pitch_threshold:
             return "Distracted"
 
-        if (dominant_emotion == "fear" and abs(yaw_mean) < self.yaw_threshold and ear_mean > self.ear_threshold):
-            return "Confused"
-
-        if (dominant_emotion == "sad" and abs(yaw_mean) < self.yaw_threshold and ear_mean > self.ear_threshold):
+        if dominant_emotion in ["angry", "fear"] and abs(yaw_mean) < self.yaw_threshold and ear_mean > self.ear_threshold:
             return "Disengaged"
 
         if dominant_emotion in ["happy", "neutral"]:

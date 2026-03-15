@@ -9,7 +9,7 @@ models:
 
 attention:
   window_size: 30
-  ear_threshold: 0.23
+  ear_threshold: 0.20
   blink_consec_frames: 3
   yaw_threshold: 15
   pitch_threshold: 15

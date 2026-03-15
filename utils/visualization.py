@@ -14,7 +14,7 @@ def draw_landmarks(frame: np.ndarray, landmarks: list|np.ndarray, color=(0,255,0
         List of (x,y) landmark coordinates.
 
     color : tuple
-        Landmark color (B,G,R).
+        Landmark color (B, G, R).
     """
     pts = np.array(landmarks, dtype=np.int32)
 
@@ -60,9 +60,9 @@ def draw_metrics(frame: np.ndarray, state: str, ear: float|None=None, blink_rate
     font = cv2.FONT_HERSHEY_SIMPLEX
     scale = 0.6
     color = (255, 0, 0)
-    thickness = 2
+    thickness = 3
 
-    cv2.putText(frame, f"Attention: {state}", (20, y_offset), font, scale, color, thickness)
+    cv2.putText(frame, f"Attention: {state}", (20, y_offset), font, scale, (0, 255, 0), thickness)
     y_offset += line_gap
 
     if ear is not None:
@@ -70,7 +70,7 @@ def draw_metrics(frame: np.ndarray, state: str, ear: float|None=None, blink_rate
         y_offset += line_gap
 
     if blink_rate is not None:
-        cv2.putText(frame, f"Blink Rate: {blink_rate:.1f}", (20, y_offset), font, scale, color, thickness)
+        cv2.putText(frame, f"Blink Rate: {blink_rate:.1f}/min", (20, y_offset), font, scale, color, thickness)
         y_offset += line_gap
 
     if yaw is not None:
