@@ -48,7 +48,9 @@ cd https://github.com/DT-Ashton/Mood-and-Attention-Monitoring-in-Online-Classroo
 ```
 2. Create and activate a virtual environment
 
-&emsp;&emsp;```python -m venv venv```
+```bash
+python -m venv venv
+```
 
 &emsp;&emsp;Windows:  
 &emsp;&emsp;&emsp; ```.venv\Scripts\Activate.ps1``` (powershell)  
@@ -58,10 +60,20 @@ cd https://github.com/DT-Ashton/Mood-and-Attention-Monitoring-in-Online-Classroo
 
 3. Install dependencies:
 
-&emsp;&emsp; ```pip install -r requirements.txt```
+```bash
+pip install -r requirements.txt
+```
 
 4. Run project:
-&emsp;&emsp;Run CLI demo: ```python main.py```
-&emsp;&emsp;Run web demo: ```python app.py```
+
+- Run CLI demo: 
+```bash
+python main.py
+```
+
+- Run web demo: 
+```bash
+python app.py
+```
 
 **Note:** Change project settings in `config/config.yaml`

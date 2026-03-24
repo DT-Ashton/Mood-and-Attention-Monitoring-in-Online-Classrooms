@@ -1,11 +1,11 @@
 import cv2
-from pipeline import MonitoringPipeline
+from pipeline import LiveStreamMonitoringPipeline
 from config.config_loader import load_config
 
 cfg = load_config()
 
 def main():
-    pipeline = MonitoringPipeline(config=cfg)
+    pipeline = LiveStreamMonitoringPipeline(config=cfg)
     cap = cv2.VideoCapture(cfg["pipeline"]["webcam_id"])
 
     while cap.isOpened():

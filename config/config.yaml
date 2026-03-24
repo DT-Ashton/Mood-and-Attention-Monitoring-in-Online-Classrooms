@@ -2,8 +2,8 @@ models:
   landmarker: "models/face_landmarker.task"
   
   emotion:
-    architecture: "resnet18"    # Options: "efficientnet_v2_s", "resnet18", "mobilenet_v3_large"
-    path: "models/ResNet18.pt"  # Options: "models/EfficientNet_v2_s.pt", "models/ResNet18.pt", "models/MobileNet_v3_Large.pt"
+    architecture: "efficientnet_v2_s"    # Options: "efficientnet_v2_s", "resnet18", "mobilenet_v3_large"
+    path: "models/EfficientNet_v2_s.pt"  # Options: "models/EfficientNet_v2_s.pt", "models/ResNet18.pt", "models/MobileNet_v3_Large.pt"
   
   device: "cuda"  # Options: "cuda", "cpu"
 

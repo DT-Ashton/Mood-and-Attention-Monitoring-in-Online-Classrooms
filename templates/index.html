@@ -51,49 +51,165 @@
         .disengaged{color:blue;font-weight:bold;}
         .distracted{color:orange;font-weight:bold;}
         .drowsy{color:red;font-weight:bold;}
+
+        .mode-selector {
+            margin-bottom: 20px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .mode-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background: #ddd;
+            font-size: 14px;
+        }
+
+        button.active {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .upload-section {
+            display: none;
+            margin-top: 15px;
+        }
+
+        .upload-section.active {
+            display: block;
+        }
+
+        input[type="file"] {
+            margin: 10px 0;
+        }
+
+        #uploadResult {
+            margin-top: 15px;
+            display: none;
+        }
+
+        #uploadedImage {
+            max-width: 400px;
+            margin-top: 10px;
+            border-radius: 5px;
+        }
     </style>
 </head>
 
 <body>
 <h2>Online Classroom Mood & Attention Monitoring</h2>
+
+<div class="mode-selector">
+    <div class="mode-buttons">
+        <button id="cameraBtn" class="active">Camera Feed</button>
+        <button id="uploadBtn">Upload Image</button>
+    </div>
+</div>
+
 <div class="container">
     <div class="video">
         <img id="video" src="/video_feed" width="640">
+        <div id="uploadResult" class="upload-section">
+            <img id="uploadedImage" src="" alt="Processed Image">
+        </div>
     </div>
+
     <div class="panel">
-        <div class="metric-header">
-            <h3>Attention</h3>
-            <span id="attention">Focused</span>
+        <div class="upload-section active" id="cameraPanel"></div>
+            <div class="metric-header">
+                <h3>Attention</h3>
+                <span id="attention">Focused</span>
+            </div>
+
+            <div class="metric-header">
+                <h3>Emotion</h3>
+                <span id="emotion">Neutral</span>
+            </div>
+
+            <h3>Session statistics</h3>
+            <p>Focused: <span id="focused"></span>%</p>
+            <p>Disengaged: <span id="disengaged"></span>%</p>
+            <p>Distracted: <span id="distracted"></span>%</p>
+            <p>Drowsy: <span id="drowsy"></span>%</p>
+
+            <hr>
+            <h3>Visualization</h3>
+            <label>
+                <input type="checkbox" id="landmarks" checked>
+                Show landmarks
+            </label>
+
+            <br>
+            <label>
+                <input type="checkbox" id="metrics" checked>
+                Show metrics
+            </label>
         </div>
+        
+        <div class="upload-section" id="uploadPanel">
+            <h3>Upload Image</h3>
+            <input type="file" id="fileInput" accept="image/*">
+            <button id="uploadFileBtn">Process Image</button>
 
-        <div class="metric-header">
-            <h3>Emotion</h3>
-            <span id="emotion">Neutral</span>
+            <div id="uploadStats" style="margin-top: 15px; display: none;">
+                <div class="metric-header">
+                    <h3>Attention</h3>
+                    <span id="uploadAttention">Focused</span>
+                </div>
+
+                <div class="metric-header">
+                    <h3>Emotion</h3>
+                    <span id="uploadEmotion">Neutral</span>
+                </div>
+
+                <h3>Statistics</h3>
+                <p>Focused: <span id="uploadFocused"></span>%</p>
+                <p>Disengaged: <span id="uploadDisengaged"></span>%</p>
+                <p>Distracted: <span id="uploadDistracted"></span>%</p>
+                <p>Drowsy: <span id="uploadDrowsy"></span>%</p>
+            </div>
         </div>
-
-        <h3>Session statistics</h3>
-        <p>Focused: <span id="focused"></span>%</p>
-        <p>Disengaged: <span id="disengaged"></span>%</p>
-        <p>Distracted: <span id="distracted"></span>%</p>
-        <p>Drowsy: <span id="drowsy"></span>%</p>
-
-        <hr>
-        <h3>Visualization</h3>
-        <label>
-            <input type="checkbox" id="landmarks" checked>
-            Show landmarks
-        </label>
-
-        <br>
-        <label>
-            <input type="checkbox" id="metrics" checked>
-            Show metrics
-        </label>
     </div>
 </div>
 
 <script>
+let currentMode = "camera";
+
+// Mode switching
+document.getElementById("cameraBtn").addEventListener("click", () => {
+    currentMode = "camera";
+    document.getElementById("cameraBtn").classList.add("active");
+    document.getElementById("uploadBtn").classList.remove("active");
+    document.getElementById("video").style.display = "block";
+    document.getElementById("uploadResult").style.display = "none";
+    document.getElementById("cameraPanel").classList.add("active");
+    document.getElementById("uploadPanel").classList.remove("active");
+});
+
+document.getElementById("uploadBtn").addEventListener("click", () => {
+    currentMode = "upload";
+    document.getElementById("uploadBtn").classList.add("active");
+    document.getElementById("cameraBtn").classList.remove("active");
+    document.getElementById("video").style.display = "none";
+    document.getElementById("uploadResult").style.display = "block";
+    document.getElementById("uploadPanel").classList.add("active");
+    document.getElementById("cameraPanel").classList.remove("active");
+});
+
+// Camera metrics
 async function updateMetrics(){
+    if(currentMode !== "camera") return;
+
     const res = await fetch("/metrics")
     const data = await res.json()
 
@@ -117,6 +233,42 @@ setInterval(()=>{
         img.src="/video_feed?"+new Date().getTime()
     }
 },3000)
+
+// File upload
+document.getElementById("uploadFileBtn").addEventListener("click", async () => {
+    const fileInput = document.getElementById("fileInput");
+    if(!fileInput.files.length) {
+        alert("Please select an image");
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", fileInput.files[0]);
+
+    try {
+        const res = await fetch("/upload_image", {
+            method: "POST",
+            body: formData
+        });
+
+        const data = await res.json();
+        if(res.ok) {
+            document.getElementById("uploadedImage").src = "data:image/jpeg;base64," + data.image;
+            document.getElementById("uploadEmotion").innerText = data.emotion;
+            document.getElementById("uploadAttention").innerText = data.state;
+            document.getElementById("uploadAttention").className = data.state.toLowerCase();
+            document.getElementById("uploadFocused").innerText = data.stats.focused;
+            document.getElementById("uploadDisengaged").innerText = data.stats.disengaged;
+            document.getElementById("uploadDistracted").innerText = data.stats.distracted;
+            document.getElementById("uploadDrowsy").innerText = data.stats.drowsy;
+            document.getElementById("uploadStats").style.display = "block";
+        } else {
+            alert("Error: " + data.error);
+        }
+    } catch(error) {
+        alert("Upload failed: " + error);
+    }
+});
 
 // Toggle options
 document.getElementById("landmarks").addEventListener("change", e=>{
