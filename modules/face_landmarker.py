@@ -1,6 +1,7 @@
 import mediapipe as mp
 from mediapipe.tasks.python import vision
 from mediapipe.tasks.python import BaseOptions
+import numpy as np
 
 class FaceLandmarkerLiveStreamWrapper:
     """
@@ -42,7 +43,7 @@ class FaceLandmarkerLiveStreamWrapper:
     def get_latest_result(self):
         return self.latest_result
     
-    def detect_async(self, frame, timestamp):
+    def detect_async(self, frame: np.ndarray, timestamp: int):
         """
         Asynchronously detect face landmarks in a single image frame.
         Parameters
@@ -75,7 +76,7 @@ class FaceLandmarkerImageWrapper:
         )
         self.landmarker = vision.FaceLandmarker.create_from_options(options)
 
-    def detect(self, frame):
+    def detect(self, frame: np.ndarray):
         """
         Synchronously detect face landmarks in a single image frame.
 

@@ -2,133 +2,109 @@
 <html>
 <head>
     <title>Online Classroom Monitoring</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
     <style>
-        body{
-        font-family: Arial;
-        background:#f3f3f3;
-        text-align:center;
-        }
+        body { font-family: Arial, sans-serif; background: #f3f3f3; text-align: center; margin: 0; padding: 0; }
+        .main { padding: 40px; }
+        .card { display: inline-block; background: white; border-radius: 10px; padding: 25px; margin: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.12); width: 280px; }
+        .card h2 { margin: 20px 0; }
+        .btn { display: inline-block; margin-top: 15px; padding: 10px 18px; background: #4CAF50; color: white; text-decoration: none; border-radius: 6px; }
+        .section { max-width: 860px; margin: 0 auto; }
+        .form-control { margin: 10px 0; }
+        img { max-width: 100%; border-radius: 8px; }
+        .link-back { margin-bottom: 18px; display: inline-block; text-decoration: none; color: #555; }
+        .error { color: red; margin: 10px 0; }
+        .stats { text-align: left; margin-top: 20px; }
 
-        .container{
-        display:flex;
-        justify-content:center;
-        margin-top:20px;
-        }
+        .upload-layout { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; margin-top: 20px; }
+        .upload-left, .upload-right { background: white; border-radius: 10px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
+        .upload-left { flex: 1 1 360px; max-width: 420px; }
+        .upload-right { flex: 1 1 300px; max-width: 360px;}
 
-        .video{
-        margin-right:40px;
-        }
-
-        .panel{
-        background:white;
-        padding:40px;
-        border-radius:10px;
-        width:250px;
-        text-align: left;
-        }
-
-        .panel h3{
-        text-align: center;
-        }
-
-        .metric-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .metric-header h3 {
-            margin: 10px 0;
-        }
-
-        .metric-header span {
-            font-weight: bold;
-        }
-
-        .focused{color:green;font-weight:bold;}
-        .disengaged{color:blue;font-weight:bold;}
-        .distracted{color:orange;font-weight:bold;}
-        .drowsy{color:red;font-weight:bold;}
-
-        .mode-selector {
-            margin-bottom: 20px;
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-        }
-
-        .mode-buttons {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-
-        button {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            background: #ddd;
-            font-size: 14px;
-        }
-
-        button.active {
-            background: #4CAF50;
-            color: white;
-        }
-
-        .upload-section {
-            display: none;
-            margin-top: 15px;
-        }
-
-        .upload-section.active {
-            display: block;
-        }
-
-        input[type="file"] {
-            margin: 10px 0;
-        }
-
-        #uploadResult {
-            margin-top: 15px;
-            display: none;
-        }
-
-        #uploadedImage {
-            max-width: 400px;
-            margin-top: 10px;
-            border-radius: 5px;
-        }
+        /* Camera mode styles */
+        .container { display: flex; justify-content: center; margin-top: 20px; }
+        .video { margin-right: 40px; }
+        .panel { background: white; padding: 40px; border-radius: 10px; width: 250px; text-align: left; }
+        .panel h3 { text-align: center; }
+        .metric-header { display: flex; justify-content: space-between; align-items: center; }
+        .metric-header h3 { margin: 10px 0; }
+        .metric-header span { font-weight: bold; }
+        .focused { color: green; font-weight: bold; }
+        .disengaged { color: blue; font-weight: bold; }
+        .distracted { color: orange; font-weight: bold; }
+        .drowsy { color: red; font-weight: bold; }
     </style>
 </head>
-
 <body>
-<h2>Online Classroom Mood & Attention Monitoring</h2>
+<div class="main">
+    <h1>Online Classroom Monitoring</h1>
+    {% if mode == 'home' %}
+    <div class="section">
+        <div class="card">
+            <h2>Webcam Monitoring</h2>
+            <p>Start live video stream with attention/emotion overlay.</p>
+            <a class="btn" href="/camera">Go to Webcam Feed</a>
+        </div>
 
-<div class="mode-selector">
-    <div class="mode-buttons">
-        <button id="cameraBtn" class="active">Camera Feed</button>
-        <button id="uploadBtn">Upload Image</button>
-    </div>
-</div>
-
-<div class="container">
-    <div class="video">
-        <img id="video" src="/video_feed" width="640">
-        <div id="uploadResult" class="upload-section">
-            <img id="uploadedImage" src="" alt="Processed Image">
+        <div class="card">
+            <h2>Upload Image</h2>
+            <p>Upload a single image and get annotated result.</p>
+            <a class="btn" href="/upload_image">Go to Upload Image</a>
         </div>
     </div>
+    {% elif mode == 'upload' %}
+    <a id="backHomeUpload" class="link-back" href="/">⟵ Back to Home</a>
 
-    <div class="panel">
-        <div class="upload-section active" id="cameraPanel"></div>
+    <div class="upload-layout">
+        <div class="upload-left">
+            <h2>Annotated Image</h2>
+            {% if result %}
+            <img src="data:image/jpeg;base64,{{ result }}" alt="Annotated image">
+            {% else %}
+            <div style="color:#777;">No image yet. Upload an image to see result.</div>
+            {% endif %}
+        </div>
+
+        <div class="upload-right">
+            <div class="card" style="margin: 0; box-shadow:none; padding: 0;">
+                <h2>Upload Image</h2>
+
+                {% if error %}
+                <div class="error">{{ error }}</div>
+                {% endif %}
+
+                <form method="post" enctype="multipart/form-data">
+                    <div class="form-control">
+                        <input type="file" name="file" accept="image/*" required>
+                    </div>
+                    <button type="submit" class="btn">Process Image</button>
+                </form>
+
+                {% if result %}
+                <div class="stats">
+                    <h2 style="text-align: center;">Results</h2>
+                    <p><strong>State:</strong> {{ state }}</p>
+                    <p><strong>Pitch:</strong> {{ pitch }}</p>
+                    <p><strong>Yaw:</strong> {{ yaw }}</p>
+                    <p><strong>EAR:</strong> {{ ear }}</p>
+                    <p><strong>Emotion:</strong> {{ emotion }} ({{ conf }}%)</p>
+                    
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% elif mode == 'camera' %}
+    <a id="backHomeCamera" class="link-back" href="/">⟵ Back to Home</a>
+
+    <div class="container">
+        <div class="video">
+            <img id="video" src="/video_feed" width="640" alt="Live video feed">
+        </div>
+
+        <div class="panel">
             <div class="metric-header">
                 <h3>Attention</h3>
-                <span id="attention">Focused</span>
+                <span id="attention" class="focused">Focused</span>
             </div>
 
             <div class="metric-header">
@@ -137,10 +113,10 @@
             </div>
 
             <h3>Session statistics</h3>
-            <p>Focused: <span id="focused"></span>%</p>
-            <p>Disengaged: <span id="disengaged"></span>%</p>
-            <p>Distracted: <span id="distracted"></span>%</p>
-            <p>Drowsy: <span id="drowsy"></span>%</p>
+            <p>Focused: <span id="focused">0</span>%</p>
+            <p>Disengaged: <span id="disengaged">0</span>%</p>
+            <p>Distracted: <span id="distracted">0</span>%</p>
+            <p>Drowsy: <span id="drowsy">0</span>%</p>
 
             <hr>
             <h3>Visualization</h3>
@@ -148,151 +124,97 @@
                 <input type="checkbox" id="landmarks" checked>
                 Show landmarks
             </label>
-
             <br>
             <label>
                 <input type="checkbox" id="metrics" checked>
                 Show metrics
             </label>
         </div>
-        
-        <div class="upload-section" id="uploadPanel">
-            <h3>Upload Image</h3>
-            <input type="file" id="fileInput" accept="image/*">
-            <button id="uploadFileBtn">Process Image</button>
-
-            <div id="uploadStats" style="margin-top: 15px; display: none;">
-                <div class="metric-header">
-                    <h3>Attention</h3>
-                    <span id="uploadAttention">Focused</span>
-                </div>
-
-                <div class="metric-header">
-                    <h3>Emotion</h3>
-                    <span id="uploadEmotion">Neutral</span>
-                </div>
-
-                <h3>Statistics</h3>
-                <p>Focused: <span id="uploadFocused"></span>%</p>
-                <p>Disengaged: <span id="uploadDisengaged"></span>%</p>
-                <p>Distracted: <span id="uploadDistracted"></span>%</p>
-                <p>Drowsy: <span id="uploadDrowsy"></span>%</p>
-            </div>
-        </div>
     </div>
+    {% else %}
+    <p>Invalid mode.</p>
+    {% endif %}
 </div>
 
+{% if mode == 'camera' %}
 <script>
-let currentMode = "camera";
-
-// Mode switching
-document.getElementById("cameraBtn").addEventListener("click", () => {
-    currentMode = "camera";
-    document.getElementById("cameraBtn").classList.add("active");
-    document.getElementById("uploadBtn").classList.remove("active");
-    document.getElementById("video").style.display = "block";
-    document.getElementById("uploadResult").style.display = "none";
-    document.getElementById("cameraPanel").classList.add("active");
-    document.getElementById("uploadPanel").classList.remove("active");
-});
-
-document.getElementById("uploadBtn").addEventListener("click", () => {
-    currentMode = "upload";
-    document.getElementById("uploadBtn").classList.add("active");
-    document.getElementById("cameraBtn").classList.remove("active");
-    document.getElementById("video").style.display = "none";
-    document.getElementById("uploadResult").style.display = "block";
-    document.getElementById("uploadPanel").classList.add("active");
-    document.getElementById("cameraPanel").classList.remove("active");
-});
-
 // Camera metrics
-async function updateMetrics(){
-    if(currentMode !== "camera") return;
-
-    const res = await fetch("/metrics")
-    const data = await res.json()
-
-    document.getElementById("emotion").innerText = data.emotion
-
-    let attention = document.getElementById("attention")
-
-    attention.innerText = data.state
-    attention.className = data.state.toLowerCase()
-
-    document.getElementById("focused").innerText = data.stats.focused
-    document.getElementById("disengaged").innerText = data.stats.disengaged
-    document.getElementById("distracted").innerText = data.stats.distracted
-    document.getElementById("drowsy").innerText = data.stats.drowsy
-}
-setInterval(updateMetrics,1000)
-
-setInterval(()=>{
-    let img = document.getElementById("video")
-    if(!img.complete || img.naturalWidth === 0){
-        img.src="/video_feed?"+new Date().getTime()
-    }
-},3000)
-
-// File upload
-document.getElementById("uploadFileBtn").addEventListener("click", async () => {
-    const fileInput = document.getElementById("fileInput");
-    if(!fileInput.files.length) {
-        alert("Please select an image");
-        return;
-    }
-
-    const formData = new FormData();
-    formData.append("file", fileInput.files[0]);
-
+async function updateMetrics() {
     try {
-        const res = await fetch("/upload_image", {
-            method: "POST",
-            body: formData
-        });
-
+        const res = await fetch('/metrics');
         const data = await res.json();
-        if(res.ok) {
-            document.getElementById("uploadedImage").src = "data:image/jpeg;base64," + data.image;
-            document.getElementById("uploadEmotion").innerText = data.emotion;
-            document.getElementById("uploadAttention").innerText = data.state;
-            document.getElementById("uploadAttention").className = data.state.toLowerCase();
-            document.getElementById("uploadFocused").innerText = data.stats.focused;
-            document.getElementById("uploadDisengaged").innerText = data.stats.disengaged;
-            document.getElementById("uploadDistracted").innerText = data.stats.distracted;
-            document.getElementById("uploadDrowsy").innerText = data.stats.drowsy;
-            document.getElementById("uploadStats").style.display = "block";
-        } else {
-            alert("Error: " + data.error);
-        }
-    } catch(error) {
-        alert("Upload failed: " + error);
+
+        document.getElementById('emotion').innerText = data.emotion;
+
+        let attention = document.getElementById('attention');
+        attention.innerText = data.state;
+        attention.className = data.state.toLowerCase();
+
+        document.getElementById('focused').innerText = data.stats.focused;
+        document.getElementById('disengaged').innerText = data.stats.disengaged;
+        document.getElementById('distracted').innerText = data.stats.distracted;
+        document.getElementById('drowsy').innerText = data.stats.drowsy;
+    } catch (error) {
+        console.error('Error updating metrics:', error);
     }
-});
+}
+
+setInterval(updateMetrics, 1000);
+
+// Refresh video if needed
+setInterval(() => {
+    let img = document.getElementById('video');
+    if (!img.complete || img.naturalWidth === 0) {
+        img.src = '/video_feed?' + new Date().getTime();
+    }
+}, 3000);
 
 // Toggle options
-document.getElementById("landmarks").addEventListener("change", e=>{
-    fetch("/toggle",{
-        method:"POST",
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({
-            option:"landmarks",
-            value:e.target.checked
+document.getElementById('landmarks').addEventListener('change', e => {
+    fetch('/toggle', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            option: 'landmarks',
+            value: e.target.checked
         })
-    })
-})
+    });
+});
 
-document.getElementById("metrics").addEventListener("change", e=>{
-    fetch("/toggle",{
-        method:"POST",
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({
-            option:"metrics",
-            value:e.target.checked
+document.getElementById('metrics').addEventListener('change', e => {
+    fetch('/toggle', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            option: 'metrics',
+            value: e.target.checked
         })
-    })
-})
+    });
+});
+
+// Stop camera on back button than go home
+const backHomeCamera = document.getElementById('backHomeCamera');
+if (backHomeCamera) {
+    backHomeCamera.addEventListener('click', async function (e) {
+        e.preventDefault();
+        try {
+            await fetch('/stop_camera', { method: 'POST' });
+        } catch (error) {
+            console.error('Failed to stop camera:', error);
+        }
+        window.location.href = '/';
+    });
+}
+
+const backHomeUpload = document.getElementById('backHomeUpload');
+if (backHomeUpload) {
+    backHomeUpload.addEventListener('click', function (e) {
+        e.preventDefault();
+        window.location.href = '/';
+    });
+}
 </script>
+{% endif %}
 
 </body>
 </html>

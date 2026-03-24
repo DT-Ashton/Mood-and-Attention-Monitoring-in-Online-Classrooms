@@ -29,7 +29,8 @@ class LiveStreamMonitoringPipeline:
             ear_threshold=config['attention']['ear_threshold'],
             yaw_threshold=config['attention']['yaw_threshold'],
             pitch_threshold=config['attention']['pitch_threshold'],
-            blink_rate_drowsy=config['attention']['blink_rate_drowsy']
+            blink_rate_drowsy=config['attention']['blink_rate_drowsy'],
+            temporal_mode=True
         )
         self.blink_rate_calc = BlinkRateCalculator(
             ear_threshold=config['attention']['ear_threshold'],
@@ -77,7 +78,7 @@ class LiveStreamMonitoringPipeline:
         frame = cv2.flip(frame, 1)
 
         self.frame_id += 1
-        
+
         # Monotonically increasing timestamp (33ms per frame ≈ 30fps)
         timestamp = self.frame_id * 33
 
@@ -175,17 +176,18 @@ class ImageMonitoringPipeline:
             config["models"]["device"]
         )
         self.attention_model = AttentionModel(
-            window_size=0,
             ear_threshold=config['attention']['ear_threshold'],
             yaw_threshold=config['attention']['yaw_threshold'],
             pitch_threshold=config['attention']['pitch_threshold'],
-            blink_rate_drowsy=1
+            blink_rate_drowsy=config['attention']['blink_rate_drowsy'],
+            temporal_mode=False
         )
-        self.show_metrics = config['visualization']['show_metrics']
-        self.show_landmarks = config['visualization']['show_landmarks']
         self.emotion = "Unknown"
         self.state = "Unknown"
         self.conf = 0.0
+        self.yaw = 0.0
+        self.pitch = 0.0
+        self.ear = 0.0
     
     def process_image(self, image):
         """
@@ -202,8 +204,7 @@ class ImageMonitoringPipeline:
             Annotated output image.
         """
         # Run Face Landmarker
-        self.landmarker.detect(image)
-        result = self.landmarker.get_latest_result()
+        result= self.landmarker.detect(image)
 
         if result and result.face_landmarks:
             landmarks = result.face_landmarks[0]
@@ -214,15 +215,17 @@ class ImageMonitoringPipeline:
 
             # Compute eye aspect ratio
             ear = compute_avg_ear(coords)
+            self.ear = ear
 
             # Head pose estimation
             if result.facial_transformation_matrixes:
                 matrix = result.facial_transformation_matrixes[0]
                 pitch, yaw, roll = get_head_pose(matrix)
-                pitch = self.pitch_smoother.update(pitch)
-                yaw = self.yaw_smoother.update(yaw)
             else:
                 yaw, pitch = 0, 0
+            
+            self.yaw = yaw
+            self.pitch = pitch
 
             # Emotion inference
             cropped_face = self.emotion_model.crop_face(image, coords)
@@ -233,12 +236,6 @@ class ImageMonitoringPipeline:
             self.state = self.attention_model.update(ear=ear, blink_rate=0, yaw=yaw, pitch=pitch, emotion=self.emotion)
 
             # Draw visualizations
-            if self.show_metrics:
-                draw_metrics(image, self.state, ear=ear, yaw=yaw, pitch=pitch, emotion=self.emotion, confidence=self.conf)
-            else:
-                draw_metrics(image, self.state)
-
-            if self.show_landmarks:
-                draw_landmarks(image, coords)
+            draw_landmarks(image, coords)
 
         return image
