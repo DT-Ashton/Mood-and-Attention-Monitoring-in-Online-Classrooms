@@ -14,18 +14,15 @@ class EMAFilter:
 
     A larger alpha makes the filter more responsive to new values,
     while a smaller alpha produces smoother but slower responses.
+
+    Parameters
+    ----------
+    alpha : float, optional
+        Smoothing factor controlling the influence of the
+        current input value. Default is 0.3.
     """
 
     def __init__(self, alpha=0.3):
-        """
-        Initialize the EMA filter.
-
-        Parameters
-        ----------
-        alpha : float, optional
-            Smoothing factor controlling the influence of the
-            current input value. Default is 0.3.
-        """
         self.alpha = alpha
         self.value = None
 

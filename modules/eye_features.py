@@ -66,21 +66,17 @@ def compute_avg_ear(landmarks: list) -> float:
 class BlinkRateCalculator:
     """
     Estimates blink rate in terms of blinks per minute.
+
+    Parameters
+    ----------
+    ear_threshold : float
+        Threshold below which the eye is considered closed.
+
+    consec_frames : int
+        Number of consecutive frames required to register a blink.
     """
 
     def __init__(self, ear_threshold=0.21, consec_frames=3):
-        """
-        Initialize the blink rate calculator.
-
-        Parameters
-        ----------
-        ear_threshold : float
-            Threshold below which the eye is considered closed.
-
-        consec_frames : int
-            Number of consecutive frames required to register a blink.
-        """
-
         self.ear_threshold = ear_threshold
         self.consec_frames = consec_frames
 
